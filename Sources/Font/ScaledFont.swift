@@ -6,6 +6,14 @@ import UIKit
 import SwiftUI
 
 
+struct FontDescription: Decodable {
+    let fontName: String
+    let fontSize: CGFloat
+}
+
+typealias StyleDictionary = [UIFont.TextStyle.RawValue: FontDescription]
+
+private var defaultStyleDictionary: StyleDictionary? = nil
 private var defaultFontFamily: String? = nil
 
 private extension UIFont.TextStyle {
@@ -30,6 +38,7 @@ private extension UIFont.TextStyle {
 
 
 public extension UIFont {
+    
     class var defaultFontName: String? {
         return defaultFontFamily
     }
@@ -38,9 +47,27 @@ public extension UIFont {
         defaultFontFamily = name
     }
     
+    internal class var defaultFontStyleDictionary: StyleDictionary? {
+        return defaultStyleDictionary
+    }
+    
+    class func setDefaultFontStyle(resourceName: String, bundle: Bundle = .main, withExtension: String = "plist") {
+        if let url = bundle.url(forResource: resourceName, withExtension: withExtension),
+            let data = try? Data(contentsOf: url) {
+            let decoder = PropertyListDecoder()
+            defaultStyleDictionary = try? decoder.decode(StyleDictionary.self, from: data)
+        }
+    }
+    
     class func defaultFont(forTextStyle textStyle: UIFont.TextStyle) -> UIFont {
-        let fontName = UIFont.defaultFontName
-        let fontSize = textStyle.pointSize
+        var fontName = UIFont.defaultFontName
+        var fontSize = textStyle.pointSize
+        
+        if let fontDescription = defaultFontStyleDictionary?[textStyle.rawValue] {
+            fontName = fontDescription.fontName
+            fontSize = fontDescription.fontSize
+        }
+        
         guard let fontName = fontName else {
             return UIFont.preferredFont(forTextStyle: textStyle)
         }
@@ -89,9 +116,26 @@ extension Font {
         UIFont.setDefaultFontFamily(name)
     }
     
+    
+    internal static var defaultFontStyleDictionary: StyleDictionary? {
+        return UIFont.defaultFontStyleDictionary
+    }
+    
+    public static func setDefaultFontStyle(resourceName: String, bundle: Bundle = .main, withExtension: String = "plist") {
+        UIFont.setDefaultFontStyle(resourceName: resourceName, bundle: bundle, withExtension: withExtension)
+    }
+    
+    
     public static func `default`(_ textStyle: Font.TextStyle) -> Font {
-        let fontName = UIFont.defaultFontName
-        let fontSize = uiTextStyle(textStyle).pointSize
+        let uiTextStyle = uiTextStyle(textStyle)
+        var fontName = UIFont.defaultFontName
+        var fontSize = uiTextStyle.pointSize
+        
+        if let fontDescription = defaultFontStyleDictionary?[uiTextStyle.rawValue] {
+            fontName = fontDescription.fontName
+            fontSize = fontDescription.fontSize
+        }
+        
         guard let fontName = fontName else {
             return Font.system(textStyle)
         }
