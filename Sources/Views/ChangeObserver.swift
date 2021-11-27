@@ -15,7 +15,10 @@ fileprivate struct ChangeObserver<Base: View, Value: Equatable>: View {
 
     var body: some View {
         if model.update(value: value) {
-            DispatchQueue.main.async { self.action(self.value) }
+            DispatchQueue.main.async {
+                self.action(self.value)
+                
+            }
         }
         return base
     }
@@ -33,9 +36,9 @@ fileprivate struct ChangeObserver<Base: View, Value: Equatable>: View {
 public extension View {
     /// Adds a modifier for this view that fires an action when a specific value changes.
     ///
-    /// You can use `onChange` to trigger a side effect as the result of a value changing, such as an Environment key or a Binding.
+    /// You can use `observeChange` to trigger a side effect as the result of a value changing, such as an Environment key or a Binding.
     ///
-    /// `onChange` is called on the main thread. Avoid performing long-running tasks on the main thread. If you need to perform a long-running task in response to value changing, you should dispatch to a background queue.
+    /// `observeChange` is called on the main thread. Avoid performing long-running tasks on the main thread. If you need to perform a long-running task in response to value changing, you should dispatch to a background queue.
     ///
     /// The new value is passed into the closure. The previous value may be captured by the closure to compare it to the new value. For example, in the following code example, PlayerView passes both the old and new values to the model.
     ///
@@ -51,7 +54,7 @@ public extension View {
     ///       PlayButton(playState: $playState)
     ///     }
     ///   }
-    ///   .onChange(of: playState) { [playState] newState in
+    ///   .observeChange(of: playState) { [playState] newState in
     ///     model.playStateDidChange(from: playState, to: newState)
     ///   }
     /// }
@@ -62,7 +65,8 @@ public extension View {
     ///   - action: A closure to run when the value changes.
     ///   - newValue: The new value that failed the comparison check.
     /// - Returns: A modified version of this view
-    func onChange<Value: Equatable>(of value: Value, perform action: @escaping (_ newValue: Value)->Void) -> some View {
+    @available(iOS, introduced: 13, obsoleted: 14, renamed: "onChange", message: "Please use onChange(of:perform:) func for above ios 14")
+    func observeChange<Value: Equatable>(of value: Value, perform action: @escaping (_ newValue: Value)->Void) -> some View {
         ChangeObserver(base: self, value: value, action: action)
     }
 }
