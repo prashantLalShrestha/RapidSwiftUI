@@ -13,10 +13,12 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(name: "Introspect", url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.3")
     ],
     targets: [
         .target(
             name: "RapidSwiftUI",
+            dependencies: ["Introspect"],
             path: "Sources"
         ),
         .testTarget(
