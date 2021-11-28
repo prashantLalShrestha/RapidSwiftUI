@@ -60,19 +60,22 @@ public extension UIFont {
     }
     
     class func defaultFont(forTextStyle textStyle: UIFont.TextStyle) -> UIFont {
-        var fontName = UIFont.defaultFontName
-        var fontSize = textStyle.pointSize
-        
-        if let fontDescription = defaultFontStyleDictionary?[textStyle.rawValue] {
-            fontName = fontDescription.fontName
-            fontSize = fontDescription.fontSize
-        }
+        let fontName = UIFont.defaultFontName
+        let fontSize = textStyle.pointSize
         
         guard let fontName = fontName else {
             return UIFont.preferredFont(forTextStyle: textStyle)
         }
         
         return scaledFont(fontName, size: fontSize, relativeTo: textStyle)
+    }
+    
+    class func defaultStyledFont(forTextStyle textStyle: UIFont.TextStyle) -> UIFont {
+        guard let fontDescription = defaultFontStyleDictionary?[textStyle.rawValue] else {
+            return UIFont.defaultFont(forTextStyle: textStyle)
+        }
+        
+        return scaledFont(fontDescription.fontName, size: fontDescription.fontSize, relativeTo: textStyle)
     }
     
     class func scaledFont(_ name: String, size: CGFloat, relativeTo textStyle: UIFont.TextStyle) -> UIFont {
@@ -141,6 +144,16 @@ extension Font {
         }
         return Font.scaled(fontName, size: fontSize, relativeTo: textStyle)
     }
+    
+    public static func defaultStyled(_ textStyle: Font.TextStyle) -> Font {
+        let uiTextStyle = uiTextStyle(textStyle)
+        guard let fontDescription = defaultFontStyleDictionary?[uiTextStyle.rawValue] else {
+            return Font.default(textStyle)
+        }
+        
+        return Font.scaled(fontDescription.fontName, size: fontDescription.fontSize, relativeTo: textStyle)
+    }
+    
 
     public static func scaled(_ name: String, size: CGFloat, relativeTo textStyle: Font.TextStyle) -> Font {
         if #available(iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
