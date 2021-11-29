@@ -12,6 +12,8 @@ public struct TabControl<Content: View, ItemType>: View {
     }
     
     private let bottomIndicatorBackgroundColor: Color
+    private let bottomIndicatorHeight: CGFloat
+    private let bottomIndicatorWidth: CGFloat?
     private let items: [ItemType]
     private let isFullWidthIndicator: Bool
     private let onItemSelection: ((ItemType) -> Void)?
@@ -29,6 +31,8 @@ public struct TabControl<Content: View, ItemType>: View {
         @ViewBuilder content: @escaping (_ item: ItemType, _ index: Int) -> Content
     ) {
         self.bottomIndicatorBackgroundColor = .primary
+        self.bottomIndicatorHeight = 3.0
+        self.bottomIndicatorWidth = nil
         self.items = items
         self.isFullWidthIndicator = true
         self.onItemSelection = nil
@@ -42,12 +46,16 @@ public struct TabControl<Content: View, ItemType>: View {
         items: [ItemType],
         isFullWidthIndicator: Bool,
         indicatorBackgroundColor: Color,
+        indicatorHeight: CGFloat,
+        indicatorWidth: CGFloat?,
         onItemSelection: ((ItemType) -> Void)?,
         style: TabControlStyle,
         selection: Binding<Int>,
         @ViewBuilder content: @escaping (_ item: ItemType, _ index: Int) -> Content
     ) {
         self.bottomIndicatorBackgroundColor = indicatorBackgroundColor
+        self.bottomIndicatorHeight = indicatorHeight
+        self.bottomIndicatorWidth = indicatorWidth
         self.items = items
         self.isFullWidthIndicator = isFullWidthIndicator
         self.onItemSelection = onItemSelection
@@ -99,7 +107,7 @@ public struct TabControl<Content: View, ItemType>: View {
                     Color.white.opacity(0.0000000000001)
                         .preference(key: ViewHeightKey.self, value: $0.frame(in: .local).size.height)
                 }).onPreferenceChange(ViewHeightKey.self) {
-                    self.maxHeight = $0 + 8
+                    self.maxHeight = $0 + 4 + bottomIndicatorHeight
                 }.onTapGesture {
                     self.activeIdx = index
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -109,7 +117,8 @@ public struct TabControl<Content: View, ItemType>: View {
                 .scrollId(index)
             }
         }
-        .padding(4)
+        .padding(.top, 4)
+        .padding(.bottom, bottomIndicatorHeight)
         .backgroundPreferenceValue(TextPreferenceKey.self) { preferences in
             GeometryReader { geometry in
                 indicator(geometry, preferences)
@@ -123,30 +132,37 @@ public struct TabControl<Content: View, ItemType>: View {
         
         let bounds = preference.map { geometry[$0.bounds] } ?? .zero
         
+        let width = bottomIndicatorWidth ?? bounds.size.width
+        let height = bottomIndicatorHeight
+        
         return RoundedRectangle(cornerRadius: 15)
             .fill(bottomIndicatorBackgroundColor)
-            .frame(width: bounds.size.width, height: 3.0)
+            .frame(width: width, height: height)
             .fixedSize()
-            .offset(x: bounds.minX, y: bounds.maxY)
+            .offset(x: bounds.midX  - width * 0.5, y: bounds.maxY)
             .animation(.easeInOut(duration: 0.5), value: activeIdx)
     }
 }
 
 public extension TabControl {
     func fullWidthIndicator(_ bool: Bool) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: bool, indicatorBackgroundColor: bottomIndicatorBackgroundColor, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: bool, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bool ? nil : bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
     func indicatorBackgroundColor(_ color: Color) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
     func onSelect(_ selection: ((ItemType) -> Void)? = nil) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, onItemSelection: selection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: selection, style: style, selection: _selection, content: content)
     }
     
     func tabControlStyle(_ style: TabControlStyle) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+    }
+    
+    func indicatorFrame(width: CGFloat? = nil, height: CGFloat? = nil) -> TabControl {
+        return .init(items: items, isFullWidthIndicator: width != nil ? false : isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: height ?? bottomIndicatorHeight, indicatorWidth: width, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
 }
 
