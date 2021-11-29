@@ -24,16 +24,15 @@ public struct TabControl<Content: View, ItemType>: View {
     @ViewBuilder private let content: (_ item: ItemType, _ index: Int) -> Content
     
     public init(
-        items: [ItemType] = [],
-        style: TabControlStyle = .fill,
+        items: [ItemType],
         selection: Binding<Int>,
         @ViewBuilder content: @escaping (_ item: ItemType, _ index: Int) -> Content
     ) {
-        self.bottomIndicatorBackgroundColor = Color.green
+        self.bottomIndicatorBackgroundColor = .primary
         self.items = items
         self.isFullWidthIndicator = true
         self.onItemSelection = nil
-        self.style = style
+        self.style = .fill
         self._selection = selection
         self.activeIdx = selection.wrappedValue
         self.content = content
@@ -134,16 +133,20 @@ public struct TabControl<Content: View, ItemType>: View {
 }
 
 public extension TabControl {
-    func indicatorBackgroundColor(_ color: Color) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
-    }
-    
     func fullWidthIndicator(_ bool: Bool) -> TabControl {
         return .init(items: items, isFullWidthIndicator: bool, indicatorBackgroundColor: bottomIndicatorBackgroundColor, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
+    func indicatorBackgroundColor(_ color: Color) -> TabControl {
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+    }
+    
     func onSelect(_ selection: ((ItemType) -> Void)? = nil) -> TabControl {
         return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, onItemSelection: selection, style: style, selection: _selection, content: content)
+    }
+    
+    func tabControlStyle(_ style: TabControlStyle) -> TabControl {
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
 }
 
