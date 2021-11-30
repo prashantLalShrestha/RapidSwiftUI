@@ -34,6 +34,24 @@ private extension UIFont.TextStyle {
         default: return 17
         }
     }
+    
+    
+    var rawValue: String {
+        switch self {
+        case .largeTitle: return "largeTitle"
+        case .title1: return "title1"
+        case .title2: return "title2"
+        case .title3: return "title3"
+        case .headline: return "headline"
+        case .body: return "body"
+        case .callout: return "callout"
+        case .subheadline: return "subheadline"
+        case .footnote: return "footnote"
+        case .caption1: return "caption1"
+        case .caption2: return "caption2"
+        default: return ""
+        }
+    }
 }
 
 

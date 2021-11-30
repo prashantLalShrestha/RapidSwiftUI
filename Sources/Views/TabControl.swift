@@ -16,7 +16,7 @@ public struct TabControl<Content: View, ItemType>: View {
     private let bottomIndicatorWidth: CGFloat?
     private let items: [ItemType]
     private let isFullWidthIndicator: Bool
-    private let onItemSelection: ((ItemType) -> Void)?
+    private let onItemSelection: ((ItemType, Int) -> Void)?
     private let style: TabControlStyle
     
     @Binding private var selection: Int
@@ -48,7 +48,7 @@ public struct TabControl<Content: View, ItemType>: View {
         indicatorBackgroundColor: Color,
         indicatorHeight: CGFloat,
         indicatorWidth: CGFloat?,
-        onItemSelection: ((ItemType) -> Void)?,
+        onItemSelection: ((ItemType, Int) -> Void)?,
         style: TabControlStyle,
         selection: Binding<Int>,
         @ViewBuilder content: @escaping (_ item: ItemType, _ index: Int) -> Content
@@ -82,6 +82,7 @@ public struct TabControl<Content: View, ItemType>: View {
         .frame(maxHeight: maxHeight)
         .observeChange(of: activeIdx) { newValue in
             selection = newValue
+            onItemSelection?(items[newValue], newValue)
         }
     }
     
@@ -91,7 +92,7 @@ public struct TabControl<Content: View, ItemType>: View {
             ForEach(items.indices) { index in
                 VStack {
                     content(items[index], index)
-                        .padding(10)
+                        .padding(12)
                         .anchorPreference(key: TextPreferenceKey.self, value: .bounds, transform: { [TextPreferenceData(viewIdx: index, viewType: .item, bounds: $0)]})
                 }.frame(
                     width: {
@@ -153,7 +154,7 @@ public extension TabControl {
         return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
-    func onSelect(_ selection: ((ItemType) -> Void)? = nil) -> TabControl {
+    func onSelect(_ selection: ((ItemType, Int) -> Void)? = nil) -> TabControl {
         return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: selection, style: style, selection: _selection, content: content)
     }
     
