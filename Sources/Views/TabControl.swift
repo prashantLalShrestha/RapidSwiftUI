@@ -88,7 +88,7 @@ public struct TabControl<Content: View, ItemType>: View {
     
     
     private func content(_ geometry: GeometryProxy, scrollViewProxy: RapidSwiftUI.ScrollViewProxy? = nil) -> some View {
-        HStack(alignment: .bottom, spacing: 4.0) {
+        HStack(alignment: .bottom, spacing: 2.0) {
             ForEach(items.indices) { index in
                 VStack {
                     content(items[index], index)
@@ -97,7 +97,7 @@ public struct TabControl<Content: View, ItemType>: View {
                 }.frame(
                     width: {
                         switch style {
-                        case .fit(let maxItem): return (geometry.size.width - 12) / CGFloat(maxItem)
+                        case .fit(let maxItem): return abs((geometry.size.width - 12) / CGFloat(maxItem))
                         case .fill: return nil
                         }
                     }()
@@ -108,7 +108,7 @@ public struct TabControl<Content: View, ItemType>: View {
                     Color.white.opacity(0.0000000000001)
                         .preference(key: ViewHeightKey.self, value: $0.frame(in: .local).size.height)
                 }).onPreferenceChange(ViewHeightKey.self) {
-                    self.maxHeight = $0 + 4 + bottomIndicatorHeight
+                    self.maxHeight = $0 + 4
                 }.onTapGesture {
                     self.activeIdx = index
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -119,7 +119,6 @@ public struct TabControl<Content: View, ItemType>: View {
             }
         }
         .padding(.top, 4)
-        .padding(.bottom, bottomIndicatorHeight)
         .backgroundPreferenceValue(TextPreferenceKey.self) { preferences in
             GeometryReader { geometry in
                 indicator(geometry, preferences)
@@ -136,7 +135,7 @@ public struct TabControl<Content: View, ItemType>: View {
         let width = bottomIndicatorWidth ?? bounds.size.width
         let height = bottomIndicatorHeight
         
-        return RoundedRectangle(cornerRadius: 15)
+        return RoundedRectangle(cornerRadius: 0)
             .fill(bottomIndicatorBackgroundColor)
             .frame(width: width, height: height)
             .fixedSize()
