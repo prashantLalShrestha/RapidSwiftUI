@@ -4,7 +4,7 @@
 
 import UIKit
 
-extension UIBezierPath {
+public extension UIBezierPath {
     static func calculateBounds(paths: [UIBezierPath]) -> CGRect {
         let myPaths = UIBezierPath()
         for path in paths {

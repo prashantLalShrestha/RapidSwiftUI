@@ -5,11 +5,16 @@
 import SwiftUI
 
 
-struct ShapeView: Shape {
-    let bezier: UIBezierPath
-    let pathBounds: CGRect
+public struct ShapeView: Shape {
+    public let bezier: UIBezierPath
+    public let pathBounds: CGRect
     
-    func path(in rect: CGRect) -> Path {
+    public init(bezierPath: UIBezierPath, pathBounds: CGRect) {
+        self.bezier = bezierPath
+        self.pathBounds = pathBounds
+    }
+    
+    public func path(in rect: CGRect) -> Path {
         let pointScale = (rect.width >= rect.height) ?
         max(pathBounds.height, pathBounds.width) :
         min(pathBounds.height, pathBounds.width)
