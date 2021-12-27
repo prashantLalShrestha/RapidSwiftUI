@@ -11,9 +11,15 @@ public struct TabControl<Content: View, ItemType>: View {
         case fill
     }
     
+    public enum IndicatorPosition: Hashable {
+        case top
+        case bottom
+    }
+    
     private let bottomIndicatorBackgroundColor: Color
     private let bottomIndicatorHeight: CGFloat
     private let bottomIndicatorWidth: CGFloat?
+    private let bottomIndicatorPosition: IndicatorPosition
     private let items: [ItemType]
     private let isFullWidthIndicator: Bool
     private let onItemSelection: ((ItemType, Int) -> Void)?
@@ -33,6 +39,7 @@ public struct TabControl<Content: View, ItemType>: View {
         self.bottomIndicatorBackgroundColor = .primary
         self.bottomIndicatorHeight = 3.0
         self.bottomIndicatorWidth = nil
+        self.bottomIndicatorPosition = .bottom
         self.items = items
         self.isFullWidthIndicator = true
         self.onItemSelection = nil
@@ -48,6 +55,7 @@ public struct TabControl<Content: View, ItemType>: View {
         indicatorBackgroundColor: Color,
         indicatorHeight: CGFloat,
         indicatorWidth: CGFloat?,
+        indicatorPosition: IndicatorPosition,
         onItemSelection: ((ItemType, Int) -> Void)?,
         style: TabControlStyle,
         selection: Binding<Int>,
@@ -56,6 +64,7 @@ public struct TabControl<Content: View, ItemType>: View {
         self.bottomIndicatorBackgroundColor = indicatorBackgroundColor
         self.bottomIndicatorHeight = indicatorHeight
         self.bottomIndicatorWidth = indicatorWidth
+        self.bottomIndicatorPosition = indicatorPosition
         self.items = items
         self.isFullWidthIndicator = isFullWidthIndicator
         self.onItemSelection = onItemSelection
@@ -139,30 +148,34 @@ public struct TabControl<Content: View, ItemType>: View {
             .fill(bottomIndicatorBackgroundColor)
             .frame(width: width, height: height)
             .fixedSize()
-            .offset(x: bounds.midX  - width * 0.5, y: bounds.maxY)
+            .offset(x: bounds.midX  - width * 0.5, y: bottomIndicatorPosition == .bottom ? bounds.maxY : 0)
             .animation(.easeInOut(duration: 0.5), value: activeIdx)
     }
 }
 
 public extension TabControl {
     func fullWidthIndicator(_ bool: Bool) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: bool, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bool ? nil : bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: bool, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bool ? nil : bottomIndicatorWidth, indicatorPosition: bottomIndicatorPosition, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
     func indicatorBackgroundColor(_ color: Color) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: color, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, indicatorPosition: bottomIndicatorPosition, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
     func onSelect(_ selection: ((ItemType, Int) -> Void)? = nil) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: selection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, indicatorPosition: bottomIndicatorPosition, onItemSelection: selection, style: style, selection: _selection, content: content)
     }
     
     func tabControlStyle(_ style: TabControlStyle) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, indicatorPosition: bottomIndicatorPosition, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
     
     func indicatorFrame(width: CGFloat? = nil, height: CGFloat? = nil) -> TabControl {
-        return .init(items: items, isFullWidthIndicator: width != nil ? false : isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: height ?? bottomIndicatorHeight, indicatorWidth: width, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+        return .init(items: items, isFullWidthIndicator: width != nil ? false : isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: height ?? bottomIndicatorHeight, indicatorWidth: width, indicatorPosition: bottomIndicatorPosition, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
+    }
+    
+    func indicatorPosition(_ position: IndicatorPosition) -> TabControl {
+        return .init(items: items, isFullWidthIndicator: isFullWidthIndicator, indicatorBackgroundColor: bottomIndicatorBackgroundColor, indicatorHeight: bottomIndicatorHeight, indicatorWidth: bottomIndicatorWidth, indicatorPosition: position, onItemSelection: onItemSelection, style: style, selection: _selection, content: content)
     }
 }
 
