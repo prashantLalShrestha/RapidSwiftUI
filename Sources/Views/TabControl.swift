@@ -18,6 +18,7 @@ public struct TabControl<Content: View, ItemType>: View {
     
     public enum IndicatorStyle: Hashable {
         case bar
+        case box(_ cornerRadius: CGFloat)
         case capsule
     }
     
@@ -163,6 +164,16 @@ public struct TabControl<Content: View, ItemType>: View {
                 .frame(width: width, height: height)
                 .fixedSize()
                 .offset(x: bounds.midX  - width * 0.5, y: bottomIndicatorPosition == .bottom ? bounds.maxY : 0)
+                .animation(.easeInOut(duration: 0.5), value: selection)
+        case .box(let cornerRadius):
+            let width = bounds.size.width
+            let height = bounds.size.height
+            
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(bottomIndicatorBackgroundColor)
+                .frame(width: width, height: height)
+                .fixedSize()
+                .offset(x: bounds.midX  - width * 0.5, y: bounds.midY  - height * 0.5)
                 .animation(.easeInOut(duration: 0.5), value: selection)
         case .capsule:
             let width = bounds.size.width
