@@ -3,6 +3,7 @@
 //
 
 import SwiftUI
+import RapidSwift
 
 public struct TabControl<Content: View, ItemType>: View {
     
@@ -105,8 +106,11 @@ public struct TabControl<Content: View, ItemType>: View {
             }
         }
         .frame(maxHeight: maxHeight)
+        .environment(\.layoutDirection, .leftToRight)
         .observeChange(of: selection) { newValue in
-            onItemSelection?(items[newValue], newValue)
+            if let item = items[safe: newValue] {
+                onItemSelection?(item, newValue)
+            }
         }
     }
     
@@ -134,6 +138,7 @@ public struct TabControl<Content: View, ItemType>: View {
                 }).onPreferenceChange(ViewHeightKey.self) {
                     self.maxHeight = $0 + 4
                 }.onTapGesture {
+                    print("tapped")
                     self.selection = index
                 }
                 .scrollId(index)
